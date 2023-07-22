@@ -46,4 +46,6 @@
 
   <button (click)="joinRoom()">Join</button>
   <button (click)="sendMessage()">Send</button>
+  <input type="text" [(ngModel)]="otherPeerId" ngModel />
+  <button (click)="callPeer()">callPeer</button>
 </div>

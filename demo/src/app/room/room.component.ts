@@ -10,7 +10,7 @@ import { Socket, io } from 'socket.io-client';
 })
 export class RoomComponent implements OnInit {
   message = '';
-  otherpeerId = '';
+  otherPeerId = '';
 
   @ViewChild('videoGrid', { static: true })
   videoGrid!: ElementRef<HTMLButtonElement>;
@@ -31,10 +31,13 @@ export class RoomComponent implements OnInit {
     });
     this.initializeMediaStream();
     this.peer.on('open', (p: any) => {
+      console.log('Peer server connected .');
+
       console.log(p);
     });
     this.peer.on('call', (call: any) => {
       call.answer(this.myVideoStream);
+      console.log(call.metadata.peer.id);
       call.on('stream', (stream: any) => {
         console.log('Others', stream);
       });
@@ -53,10 +56,14 @@ export class RoomComponent implements OnInit {
     this.socket.emit('join-room', roomId, this.socket.id);
   }
   callPeer() {
-    const call = this.peer.call(otherPeerId, this.myVideoStream);
+    const call = this.peer.call(this.otherPeerId, this.myVideoStream, {
+      id: this.peer.id,
+    });
     call.on('stream', (stream: any) => {
-      this.otherStream = stream;
-      this.otherVideoElement.srcObject = stream;
+      console.log(stream);
+      this.addVideoStream(stream);
+      // this.otherStream = stream;
+      // this.otherVideoElement.srcObject = stream;
     });
   }
   async initializeMediaStream(): Promise<void> {
@@ -65,7 +72,7 @@ export class RoomComponent implements OnInit {
         audio: true,
         video: true,
       });
-      this.addVideoStream(this.myVideoStream);
+      // this.addVideoStream(this.myVideoStream);
     } catch (error) {
       console.error('Error accessing media devices:', error);
     }
